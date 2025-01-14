@@ -1,7 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"; // Import Link from React Router
 
-const SignUp = () => {
+const Login = () => {
   const styles = {
     container: {
       display: "flex",
@@ -75,22 +75,17 @@ const SignUp = () => {
       {/* Left Section: Image */}
       <div style={styles.imageContainer}>
         <img
-          src="src/assets/heart.jpeg"
-          alt="Sign Up Illustration"
+          src="src/assets/heart.jpeg" // Replace with your image URL
+          alt="Login Illustration"
           style={{ maxWidth: "100%" }}
         />
       </div>
 
-      {/* Right Section: Sign-Up Form */}
+      {/* Right Section: Login Form */}
       <div style={styles.formContainer}>
-        <h2>Create an account</h2>
-        <p>Enter your details below</p>
+        <h2>Log in to your account</h2>
+        <p>Enter your credentials below</p>
         <form style={styles.form}>
-          <input
-            type="text"
-            placeholder="Name"
-            style={styles.input}
-          />
           <input
             type="email"
             placeholder="Email or Phone Number"
@@ -102,7 +97,7 @@ const SignUp = () => {
             style={styles.input}
           />
           <button type="submit" style={styles.button}>
-            Create Account
+            Log In
           </button>
           <button style={styles.googleButton}>
             <img
@@ -110,13 +105,13 @@ const SignUp = () => {
               alt="Google Logo"
               style={{ width: "20px", height: "20px", ...styles.googleLogo }}
             />
-            Sign up with Google
+            Log in with Google
           </button>
         </form>
         <div style={styles.textCenter}>
-          Already have an account?{" "}
-          <Link to="/login" style={styles.link}>
-            Log in
+          Don't have an account?{" "}
+          <Link to="/signup" style={styles.link}> 
+            Sign up
           </Link>
         </div>
       </div>
@@ -124,4 +119,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default Login;

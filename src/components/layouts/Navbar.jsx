@@ -3,6 +3,7 @@ import React from "react";
 const Navbar = () => {
   const styles = {
     navbar: {
+      width: "100%",
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",

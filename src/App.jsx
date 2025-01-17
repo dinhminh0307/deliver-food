@@ -8,6 +8,7 @@ import Footer from "./components/layouts/Footer";
 import Login from "./pages/auth/Login";
 import Home from "./pages/Home/Home";
 import Cart from "./pages/cart/Cart";
+import Timetable from "./pages/Home/Timetable";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/timetable" element={<Timetable />} />
         </Routes>
       </main>
       <Footer />

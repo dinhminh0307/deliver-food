@@ -1,7 +1,7 @@
 # React + Vite
 ## Technologies
 ### Frontend
-- React js
+- React js + Tailwind
 ### Backend
 - nodejs
 - express

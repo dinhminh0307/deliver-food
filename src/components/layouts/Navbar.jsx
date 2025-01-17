@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { FaHeart, FaShoppingCart, FaUser } from "react-icons/fa"; // Import icons from react-icons
 
 const Navbar = () => {
@@ -85,14 +86,14 @@ const Navbar = () => {
       {/* Navigation Links */}
       <ul style={styles.navLinks}>
         <li>
-          <a href="/" style={styles.navLink}>
+          <Link to="/" style={styles.navLink}>
             Home
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="/contact" style={styles.navLink}>
+          <Link to="/contact" style={styles.navLink}>
             Contact
-          </a>
+          </Link>
         </li>
         <li>
           <a href="/about" style={styles.navLink}>
@@ -100,10 +101,13 @@ const Navbar = () => {
           </a>
         </li>
         <li>
-          <a href="/signup" style={styles.navLink}>
+          <Link to="/signup" style={styles.navLink}>
             Sign Up
-          </a>
+          </Link>
         </li>
+        <Link to="/timetable" style={styles.navLink}>
+          Time Table
+        </Link>
       </ul>
 
       {/* Search Bar */}

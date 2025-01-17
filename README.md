@@ -3,8 +3,7 @@
 ### Frontend
 - React js + Tailwind
 ### Backend
-- nodejs
-- express
+- Spring Boot
 ### Database
 - PostgreSQL
 - Firebase

@@ -88,14 +88,30 @@ const SignUp = () => {
         <form style={styles.form}>
           <input
             type="text"
-            placeholder="Name"
+            placeholder="First Name"
+            style={styles.input}
+          />
+          <input
+            type="text"
+            placeholder="Last Name"
+            style={styles.input}
+          />
+          <input
+            type="text"
+            placeholder="Phone Number"
             style={styles.input}
           />
           <input
             type="email"
-            placeholder="Email or Phone Number"
+            placeholder="Email"
             style={styles.input}
           />
+          <input
+            type="date"
+            placeholder="Date of Birth"
+            style={styles.input}
+          />
+
           <input
             type="password"
             placeholder="Password"

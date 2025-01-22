@@ -1,7 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const SignUp = () => {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    email: "",
+    dob: "",
+    password: "",
+    imageUrl: "http://example.com/profile.jpg"
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    const formattedData = {
+      ...formData,
+      dob: formData.dateOfBirth ? new Date(formData.dateOfBirth).toISOString().split('T')[0] : ""
+    };
+  
+    console.log("Sending data:", formattedData);  // Debugging log
+  
+    try {
+      const response = await fetch("http://localhost:8080/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formattedData),
+      });
+  
+      if (response.ok) {
+        alert("Account created successfully!");
+      } else {
+        alert("Error creating account. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Something went wrong!");
+    }
+  };
+  
+
   const styles = {
     container: {
       display: "flex",
@@ -72,7 +121,6 @@ const SignUp = () => {
 
   return (
     <div style={styles.container}>
-      {/* Left Section: Image */}
       <div style={styles.imageContainer}>
         <img
           src="src/assets/heart.jpeg"
@@ -81,46 +129,68 @@ const SignUp = () => {
         />
       </div>
 
-      {/* Right Section: Sign-Up Form */}
       <div style={styles.formContainer}>
         <h2>Create an account</h2>
         <p>Enter your details below</p>
-        <form style={styles.form}>
+        <form style={styles.form} onSubmit={handleSubmit}>
           <input
             type="text"
+            name="firstName"
             placeholder="First Name"
             style={styles.input}
+            value={formData.firstName}
+            required
+            onChange={handleChange}
           />
           <input
             type="text"
+            name="lastName"
             placeholder="Last Name"
             style={styles.input}
+            value={formData.lastName}
+            required
+            onChange={handleChange}/
           />
           <input
             type="text"
+            name="phoneNumber"
             placeholder="Phone Number"
             style={styles.input}
+            value={formData.phoneNumber}
+            required
+            onChange={handleChange}
           />
           <input
             type="email"
+            name="email"
             placeholder="Email"
             style={styles.input}
+            value={formData.email}
+            required
+            onChange={handleChange}
           />
           <input
             type="date"
+            name="dateOfBirth"
             placeholder="Date of Birth"
             style={styles.input}
+            value={formData.dateOfBirth}
+            required
+            onChange={handleChange}
           />
-
           <input
             type="password"
+            name="password"
             placeholder="Password"
             style={styles.input}
+            value={formData.password}
+            required
+            onChange={handleChange}
           />
           <button type="submit" style={styles.button}>
             Create Account
           </button>
-          <button style={styles.googleButton}>
+          <button type="button" style={styles.googleButton}>
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"
               alt="Google Logo"

@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+const ROLE = Object.freeze({
+    ADMIN: 'ADMIN',
+    USER: 'USER'
+});
+
 const Login = () => {
   const [formData, setFormData] = useState({
     firstName: null,
@@ -22,9 +27,67 @@ const Login = () => {
     }));
   };
 
-  const handleLogin = async (e) => {
+  const preLogin = async (e) => {
     e.preventDefault();
+    try {
+        const response = await fetch(`http://localhost:8080/auth?email=${formData.email}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
 
+        if (response.ok) {
+            const role = await response.text();  // Read the response as text
+
+            console.log("Received role:", role.trim());  // Debugging output
+
+            if (role.trim() === ROLE.ADMIN) {
+                await handleAdminLogin();
+            } else if (role.trim() === ROLE.USER) {
+                await handleUserLogin();
+            } else {
+                alert("Unknown role received: " + role);
+            }
+        } else {
+            const errorText = await response.text();
+            alert("Login failed: " + errorText);
+        }
+    } catch (error) {
+        console.error("Login error:", error);
+        alert("Something went wrong. Please try again.");
+    }
+};
+
+
+  const handleAdminLogin = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/loginAdmin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Important to include cookies
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (response.ok) {
+        alert("Admin Login successful!");
+        navigate("/admin");
+      } else {
+        const errorText = await response.text();
+        alert("Admin Login failed: " + errorText);
+      }
+    } catch (error) {
+      console.error("Admin Login error:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  }
+
+  const handleUserLogin = async () => {
     try {
       const response = await fetch("http://localhost:8080/login", {
         method: "POST",
@@ -39,16 +102,14 @@ const Login = () => {
       });
 
       if (response.ok) {
-        alert("Login successful!");
-        console.log(response.body)
-        // Redirect to dashboard upon successful login
+        alert("User Login successful!");
         navigate("/home");
       } else {
         const errorText = await response.text();
-        alert("Login failed: " + errorText);
+        alert("User Login failed: " + errorText);
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("User Login error:", error);
       alert("Something went wrong. Please try again.");
     }
   };
@@ -119,7 +180,7 @@ const Login = () => {
       <div style={styles.formContainer}>
         <h2>Log in to your account</h2>
         <p>Enter your credentials below</p>
-        <form style={styles.form} onSubmit={handleLogin}>
+        <form style={styles.form} onSubmit={preLogin}>
           <input
             type="email"
             name="email"

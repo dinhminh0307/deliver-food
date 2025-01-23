@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +12,8 @@ const SignUp = () => {
     imageUrl: "http://example.com/profile.jpg"
   });
 
+  const navigate = useNavigate(); // Hook for navigation
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -20,36 +22,70 @@ const SignUp = () => {
     }));
   };
 
+  const handleLogin = async (o) => {
+    try {
+      const response = await fetch("http://localhost:8080/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Important to include cookies
+        body: JSON.stringify(o),
+      });
+
+      if (response.ok) {
+        alert("Login successful!");
+        console.log(response.body)
+        // Redirect to dashboard upon successful login
+        navigate("/home");
+      } else {
+        const errorText = await response.text();
+        alert("Login failed: " + errorText);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const formattedData = {
       ...formData,
-      dob: formData.dateOfBirth ? new Date(formData.dateOfBirth).toISOString().split('T')[0] : ""
+      dob: formData.dateOfBirth
+        ? new Date(formData.dateOfBirth).toISOString().split("T")[0]
+        : "",
     };
-  
-    console.log("Sending data:", formattedData);  // Debugging log
-  
+
+    console.log("Sending data:", formattedData);
+
     try {
       const response = await fetch("http://localhost:8080/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // Important to include cookies
         body: JSON.stringify(formattedData),
       });
-  
+
       if (response.ok) {
         alert("Account created successfully!");
+
+        // Redirect to login page after successful signup
+        handleLogin(formattedData);
       } else {
-        alert("Error creating account. Please try again.");
+        const errorText = await response.text();
+        console.log("Error:", errorText);
+        alert("Error creating account: " + errorText);
       }
     } catch (error) {
       console.error("Error:", error);
       alert("Something went wrong!");
     }
   };
-  
 
   const styles = {
     container: {
@@ -149,7 +185,7 @@ const SignUp = () => {
             style={styles.input}
             value={formData.lastName}
             required
-            onChange={handleChange}/
+            onChange={handleChange}
           />
           <input
             type="text"

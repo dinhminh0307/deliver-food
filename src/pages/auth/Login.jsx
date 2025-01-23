@@ -1,7 +1,58 @@
-import React from "react";
-import { Link } from "react-router-dom"; // Import Link from React Router
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const [formData, setFormData] = useState({
+    firstName: null,
+    lastName: null,
+    phoneNumber: null,
+    email: "",
+    dob: null,
+    password: "",
+    imageUrl: null,
+  });
+
+  const navigate = useNavigate(); // Hook for navigation
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:8080/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Important to include cookies
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (response.ok) {
+        alert("Login successful!");
+        console.log(response.body)
+        // Redirect to dashboard upon successful login
+        navigate("/home");
+      } else {
+        const errorText = await response.text();
+        alert("Login failed: " + errorText);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  };
+
   const styles = {
     container: {
       display: "flex",
@@ -44,21 +95,6 @@ const Login = () => {
       cursor: "pointer",
       fontWeight: "bold",
     },
-    googleButton: {
-      padding: "10px",
-      margin: "10px 0",
-      backgroundColor: "#fff",
-      color: "#000",
-      border: "1px solid #ddd",
-      borderRadius: "4px",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    googleLogo: {
-      marginRight: "10px",
-    },
     textCenter: {
       textAlign: "center",
       marginTop: "20px",
@@ -72,45 +108,43 @@ const Login = () => {
 
   return (
     <div style={styles.container}>
-      {/* Left Section: Image */}
       <div style={styles.imageContainer}>
         <img
-          src="src/assets/heart.jpeg" // Replace with your image URL
+          src="src/assets/heart.jpeg"
           alt="Login Illustration"
           style={{ maxWidth: "100%" }}
         />
       </div>
 
-      {/* Right Section: Login Form */}
       <div style={styles.formContainer}>
         <h2>Log in to your account</h2>
         <p>Enter your credentials below</p>
-        <form style={styles.form}>
+        <form style={styles.form} onSubmit={handleLogin}>
           <input
             type="email"
-            placeholder="Email or Phone Number"
+            name="email"
+            placeholder="Email"
             style={styles.input}
+            value={formData.email}
+            onChange={handleChange}
+            required
           />
           <input
             type="password"
+            name="password"
             placeholder="Password"
             style={styles.input}
+            value={formData.password}
+            onChange={handleChange}
+            required
           />
           <button type="submit" style={styles.button}>
             Log In
           </button>
-          <button style={styles.googleButton}>
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"
-              alt="Google Logo"
-              style={{ width: "20px", height: "20px", ...styles.googleLogo }}
-            />
-            Log in with Google
-          </button>
         </form>
         <div style={styles.textCenter}>
           Don't have an account?{" "}
-          <Link to="/signup" style={styles.link}> 
+          <Link to="/signup" style={styles.link}>
             Sign up
           </Link>
         </div>

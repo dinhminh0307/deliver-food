@@ -9,6 +9,7 @@ import Login from "./pages/auth/Login";
 import Home from "./pages/Home/Home";
 import Cart from "./pages/cart/Cart";
 import Timetable from "./pages/Home/Timetable";
+import CustomersTable from "./pages/admin/Admin";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/timetable" element={<Timetable />} />
+          <Route path="/admin" element={<CustomersTable />} />
         </Routes>
       </main>
       <Footer />

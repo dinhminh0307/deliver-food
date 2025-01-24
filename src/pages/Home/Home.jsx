@@ -34,10 +34,9 @@ const Home = () => {
       color: "#fff",
     },
     productGrid: {
-      display: "flex",
-      justifyContent: "space-between",
-      flexWrap: "wrap",
-      gap: "20px",
+      display: "grid",
+      gridTemplateColumns: "repeat(4, 1fr)", // Creates 4 equal-width columns
+      gap: "20px", // Space between grid items
     },
     exploreHeader: {
       display: "flex",
@@ -53,6 +52,7 @@ const Home = () => {
       cursor: "pointer",
     },
   };
+  
 
   // Categories
   const categories = [
@@ -68,6 +68,13 @@ const Home = () => {
     { id: 2, category: "games", image: "https://via.placeholder.com/150", description: "Gaming Laptop", price: 1200 },
     { id: 3, category: "activities", image: "https://via.placeholder.com/150", description: "Smart Watch ABC", price: 199 },
     { id: 4, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
+    { id: 5, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
+    { id: 6, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
+    { id: 7, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
+    { id: 8, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
+    { id: 9, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
+    { id: 10, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
+    { id: 11, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
   ];
 
   // State for selected category

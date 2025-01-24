@@ -1,4 +1,5 @@
 import React from "react";
+import Sidebar from "../../components/bar/Side";
 import Table from "../../components/layouts/Table";
 
 const customersData = [
@@ -19,10 +20,31 @@ const customerColumns = [
 
 const CustomersPage = () => {
   return (
-    <div className="p-8">
-      <Table columns={customerColumns} data={customersData} actions={["view", "edit", "delete"]} />
+    <div style={styles.container}>
+      <Sidebar />
+      <div style={styles.content}>
+        <h2 style={styles.title}>Customers</h2>
+        <Table columns={customerColumns} data={customersData} actions={["view", "edit", "delete"]} />
+      </div>
     </div>
   );
+};
+
+const styles = {
+  container: {
+    display: "flex",
+    minHeight: "100vh",
+  },
+  content: {
+    flexGrow: 1,
+    padding: "20px",
+    backgroundColor: "#f4f4f4",
+  },
+  title: {
+    fontSize: "24px",
+    fontWeight: "bold",
+    marginBottom: "20px",
+  },
 };
 
 export default CustomersPage;

@@ -76,7 +76,7 @@ const Login = () => {
 
       if (response.ok) {
         alert("Admin Login successful!");
-        navigate("/admin");
+        navigate("/customers");
       } else {
         const errorText = await response.text();
         alert("Admin Login failed: " + errorText);

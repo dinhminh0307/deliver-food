@@ -17,10 +17,11 @@ const Table = ({ columns, data, actions, tableType, toggleTableType }) => {
         </h2>
         <button 
           onClick={handleAddClick} 
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          className="bg-blue-500 text-black px-4 py-2 rounded"
         >
           + New {tableType === "product" ? "Product" : "Customer"}
         </button>
+
       </div>
       <input
         type="text"

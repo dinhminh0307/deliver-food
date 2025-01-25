@@ -1,11 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/bar/Side";
 import Table from "../../components/layouts/Table";
-
-const productData = [
-  { id: 1, name: "Laptop", price: "$1200", description: "Approved" },
-  { id: 2, name: "Phone", price: "$800", description: "Approved" },
-];
 
 const customerData = [
   { id: 1, name: "John Doe", price: "johndoe@gmail.com", description: "Active" },
@@ -28,6 +23,38 @@ const customerColumns = [
 
 const ProductAdmin = () => {
   const [tableType, setTableType] = useState("product");
+  const [productData, setProductData] = useState([]);
+
+  // Fetch product data from the backend API
+  const fetchProductData = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/product/all?page=0&size=10", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Important to include cookies
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProductData(data.content); // Assuming API returns paginated content
+      } else {
+        const errorText = await response.text();
+        alert("Failed to fetch product data: " + errorText);
+      }
+    } catch (error) {
+      console.error("Error fetching product data:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  };
+
+  // Fetch products when component mounts
+  useEffect(() => {
+    if (tableType === "product") {
+      fetchProductData();
+    }
+  }, [tableType]);
 
   return (
     <div style={styles.container}>

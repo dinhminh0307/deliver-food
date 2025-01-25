@@ -1,16 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import AddFormModal from "../forms/AddFormModal";
 
-const Table = ({ columns, data, actions }) => {
+const Table = ({ columns, data, actions, tableType, toggleTableType }) => {
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const handleAddClick = () => {
+    setModalOpen(true);
+  };
+
   return (
     <div className="p-8 bg-white rounded shadow-md w-full">
       <div className="flex justify-between mb-4">
-        <h2 className="text-2xl font-bold">Customers' List</h2>
-        <button className="bg-blue-500 text-white px-4 py-2 rounded">+ New Customer</button>
+        <h2 className="text-2xl font-bold">
+          {tableType === "product" ? "Products' List" : "Customers' List"}
+        </h2>
+        <button 
+          onClick={handleAddClick} 
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          + New {tableType === "product" ? "Product" : "Customer"}
+        </button>
       </div>
       <input
         type="text"
-        placeholder="Search..."
+        placeholder={`Search ${tableType}...`}
         className="w-full p-2 border rounded mb-4"
       />
       <table className="w-full border-collapse border border-gray-300">
@@ -45,6 +59,22 @@ const Table = ({ columns, data, actions }) => {
           ))}
         </tbody>
       </table>
+
+      <div className="mt-4 flex justify-end">
+        <button 
+          onClick={toggleTableType} 
+          className="bg-gray-400 text-white px-4 py-2 rounded"
+        >
+          Switch to {tableType === "product" ? "Customers" : "Products"}
+        </button>
+      </div>
+
+      {isModalOpen && (
+        <AddFormModal 
+          onClose={() => setModalOpen(false)} 
+          formType={tableType}
+        />
+      )}
     </div>
   );
 };

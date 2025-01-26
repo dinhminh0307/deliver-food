@@ -1,6 +1,6 @@
 import React from "react";
 
-const ProductItem = ({ image, description, price }) => {
+const ProductItem = ({ image, name, description, price }) => {
   const styles = {
     card: {
       border: "1px solid #ddd",
@@ -14,9 +14,14 @@ const ProductItem = ({ image, description, price }) => {
       height: "auto",
       borderRadius: "8px",
     },
+    name: {
+      fontSize: "20px",
+      fontWeight: "bold",
+      margin: "10px 0 5px",
+    },
     description: {
       fontSize: "16px",
-      margin: "10px 0",
+      margin: "5px 0",
     },
     price: {
       fontSize: "18px",
@@ -27,7 +32,8 @@ const ProductItem = ({ image, description, price }) => {
 
   return (
     <div style={styles.card}>
-      <img src={image} alt={description} style={styles.image} />
+      <img src={image} alt={name} style={styles.image} />
+      <p style={styles.name}>{name}</p>
       <p style={styles.description}>{description}</p>
       <p style={styles.price}>${price}</p>
     </div>

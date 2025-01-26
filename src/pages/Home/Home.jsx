@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ProductItem from "../../components/forms/ProductItem";
 
 const Home = () => {
@@ -17,7 +17,7 @@ const Home = () => {
       gap: "20px",
       padding: "10px 0",
       whiteSpace: "nowrap",
-      scrollbarWidth: "none", // Hide scrollbar for Firefox
+      scrollbarWidth: "none",
     },
     categoryCard: {
       display: "inline-block",
@@ -35,8 +35,8 @@ const Home = () => {
     },
     productGrid: {
       display: "grid",
-      gridTemplateColumns: "repeat(4, 1fr)", // Creates 4 equal-width columns
-      gap: "20px", // Space between grid items
+      gridTemplateColumns: "repeat(4, 1fr)",
+      gap: "20px",
     },
     exploreHeader: {
       display: "flex",
@@ -52,36 +52,49 @@ const Home = () => {
       cursor: "pointer",
     },
   };
-  
 
   // Categories
   const categories = [
     { id: "foods", name: "Foods" },
     { id: "games", name: "Games" },
     { id: "movies", name: "Movies" },
-    { id: "activities", name: "Activities" },
   ];
 
-  // Sample Product Data
-  const products = [
-    { id: 1, category: "foods", image: "https://via.placeholder.com/150", description: "Smartphone XYZ", price: 699 },
-    { id: 2, category: "games", image: "https://via.placeholder.com/150", description: "Gaming Laptop", price: 1200 },
-    { id: 3, category: "activities", image: "https://via.placeholder.com/150", description: "Smart Watch ABC", price: 199 },
-    { id: 4, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
-    { id: 5, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
-    { id: 6, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
-    { id: 7, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
-    { id: 8, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
-    { id: 9, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
-    { id: 10, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
-    { id: 11, category: "movies", image: "https://via.placeholder.com/150", description: "DSLR Camera", price: 799 },
-  ];
-
-  // State for selected category
+  // State management
   const [selectedCategory, setSelectedCategory] = useState("foods");
+  const [products, setProducts] = useState([]);
 
-  // Filter products based on selected category
-  const filteredProducts = products.filter(product => product.category === selectedCategory);
+  // Fetch products when category changes
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/product/get?page=0&size=10&type=${selectedCategory}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data.content)
+          setProducts(data.content);
+        } else {
+          const errorText = await response.text();
+          alert("Failed to fetch products: " + errorText);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Something went wrong. Please try again.");
+      }
+    };
+
+    fetchProducts();
+  }, [selectedCategory]);
 
   return (
     <div style={styles.container}>
@@ -89,7 +102,7 @@ const Home = () => {
       <div style={styles.section}>
         <h2>Browse By Category</h2>
         <div style={styles.categoryContainer}>
-          {categories.map(category => (
+          {categories.map((category) => (
             <div
               key={category.id}
               style={{
@@ -104,20 +117,24 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Best Selling Products */}
+      {/* Products */}
       <div style={styles.section}>
         <div style={styles.exploreHeader}>
           <h2>{selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Products</h2>
         </div>
         <div style={styles.productGrid}>
-          {filteredProducts.map(product => (
-            <ProductItem
-              key={product.id}
-              image={product.image}
-              description={product.description}
-              price={product.price}
-            />
-          ))}
+          {products.length > 0 ? (
+            products.map((product) => (
+              <ProductItem
+                key={product.id}
+                name={product.name}
+                description={product.description}
+                price={product.price}
+              />
+            ))
+          ) : (
+            <p>No products available for this category.</p>
+          )}
         </div>
       </div>
     </div>

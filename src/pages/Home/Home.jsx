@@ -126,7 +126,8 @@ const Home = () => {
           {products.length > 0 ? (
             products.map((product) => (
               <ProductItem
-                key={product.id}
+                key={product.productId}
+                id={product.productId}
                 name={product.name}
                 description={product.description}
                 price={product.price}

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import CartItem from "../../components/forms/CartItem";
 
 const Cart = () => {
   const styles = {
@@ -15,9 +16,6 @@ const Cart = () => {
     tableHead: {
       backgroundColor: "#f9f9f9",
       textAlign: "left",
-    },
-    tableRow: {
-      borderBottom: "1px solid #ddd",
     },
     tableCell: {
       padding: "10px",
@@ -57,29 +55,23 @@ const Cart = () => {
     },
   };
 
-  // Sample cart items
   const [cartItems, setCartItems] = useState([
     { id: 1, name: "LCD Monitor", price: 650, quantity: 1, image: "https://via.placeholder.com/100" },
     { id: 2, name: "H1 Gamepad", price: 550, quantity: 2, image: "https://via.placeholder.com/100" },
   ]);
 
-  // Handle quantity change
   const handleQuantityChange = (id, newQuantity) => {
     setCartItems(
-      cartItems.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
+      cartItems.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item))
     );
   };
 
-  // Calculate subtotal
   const calculateSubtotal = () => {
     return cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   };
 
-  // Remove item from cart
-  const removeItem = id => {
-    setCartItems(cartItems.filter(item => item.id !== id));
+  const removeItem = (id) => {
+    setCartItems(cartItems.filter((item) => item.id !== id));
   };
 
   return (
@@ -96,43 +88,17 @@ const Cart = () => {
           </tr>
         </thead>
         <tbody>
-          {cartItems.map(item => (
-            <tr key={item.id} style={styles.tableRow}>
-              <td style={styles.tableCell}>
-                <img src={item.image} alt={item.name} style={{ width: "50px", marginRight: "10px" }} />
-                {item.name}
-              </td>
-              <td style={styles.tableCell}>${item.price}</td>
-              <td style={styles.tableCell}>
-                <select
-                  value={item.quantity}
-                  onChange={e => handleQuantityChange(item.id, parseInt(e.target.value))}
-                >
-                  {[...Array(10).keys()].map(i => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1}
-                    </option>
-                  ))}
-                </select>
-              </td>
-              <td style={styles.tableCell}>${item.price * item.quantity}</td>
-              <td style={styles.tableCell}>
-                <button onClick={() => removeItem(item.id)} style={styles.button}>
-                  ✕
-                </button>
-              </td>
-            </tr>
+          {cartItems.map((item) => (
+            <CartItem key={item.id} item={item} handleQuantityChange={handleQuantityChange} removeItem={removeItem} />
           ))}
         </tbody>
       </table>
 
-      {/* Coupon Section */}
       <div style={styles.coupon}>
         <input type="text" placeholder="Coupon Code" style={styles.couponInput} />
         <button style={styles.button}>Apply Coupon</button>
       </div>
 
-      {/* Cart Summary */}
       <div style={styles.cartSummary}>
         <div style={styles.summaryRow}>
           <span>Subtotal:</span>

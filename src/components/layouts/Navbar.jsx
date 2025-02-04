@@ -86,7 +86,7 @@ const Navbar = () => {
       {/* Navigation Links */}
       <ul style={styles.navLinks}>
         <li>
-          <Link to="/" style={styles.navLink}>
+          <Link to="/home" style={styles.navLink}>
             Home
           </Link>
         </li>

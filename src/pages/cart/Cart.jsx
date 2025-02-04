@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CartItem from "../../components/forms/CartItem";
+import AlertDialog from "../../components/dialogs/AlertDialog";
 
 const Cart = () => {
   const styles = {
@@ -55,45 +56,90 @@ const Cart = () => {
     },
   };
 
-  const [cartItems, setCartItems] = useState([
-    { id: 1, name: "LCD Monitor", price: 650, quantity: 1, image: "https://via.placeholder.com/100" },
-    { id: 2, name: "H1 Gamepad", price: 550, quantity: 2, image: "https://via.placeholder.com/100" },
-  ]);
+  const [cartItems, setCartItems] = useState([]);
+  const [cartTotal, setCartTotal] = useState(0);
+  const [cart, setCart] = useState(null);
+  const [alert, setAlert] = useState({ message: "", type: "" });
 
-  const handleQuantityChange = (id, newQuantity) => {
-    setCartItems(
-      cartItems.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item))
-    );
-  };
-
-  const calculateSubtotal = () => {
-    return cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  };
-
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+  useEffect(() => {
+    const fetchUserCart = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/cart/currentUser", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+  
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+  
+        const data = await response.json();
+        setCartItems(data?.products ?? []);
+        setCartTotal(data?.price ?? 0);
+        setCart(data);
+      } catch (error) {
+        console.error("Error fetching cart:", error);
+        setAlert({ message: "Failed to fetch cart", type: "fail" });
+      }
+    };
+  
+    fetchUserCart();
+  }, []);
+  
+  const removeItem = async (productId, cartId) => {
+    if (!productId || !cartId) {
+      setAlert({ message: "Invalid product or cart ID.", type: "warning" });
+      return;
+    }
+  
+    try {
+      const response = await fetch(
+        `http://localhost:8080/cart/delete/item?productId=${productId}&cartId=${cartId}`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+  
+      const data = await response.json();
+      setCartItems(data?.products ?? []);
+      setCartTotal(data?.price ?? 0);
+      setAlert({ message: "Item removed successfully", type: "success" });
+    } catch (error) {
+      console.error("Error removing item:", error);
+      setAlert({ message: "Failed to remove item", type: "fail" });
+    }
   };
 
   return (
     <div style={styles.container}>
       <h2>Your Cart</h2>
+      {alert.message && <AlertDialog message={alert.message} type={alert.type} />}
       <table style={styles.table}>
         <thead>
           <tr style={styles.tableHead}>
             <th style={styles.tableCell}>Product</th>
             <th style={styles.tableCell}>Price</th>
-            <th style={styles.tableCell}>Quantity</th>
-            <th style={styles.tableCell}>Subtotal</th>
+            <th style={styles.tableCell}>Description</th>
             <th style={styles.tableCell}>Remove</th>
           </tr>
         </thead>
         <tbody>
-          {cartItems.map((item) => (
-            <CartItem key={item.id} item={item} handleQuantityChange={handleQuantityChange} removeItem={removeItem} />
-          ))}
+          {cartItems.length > 0 ? (
+            cartItems.map((item) => <CartItem key={item.productId} item={item} cartId={cart.cartId} removeItem={removeItem}/>)
+          ) : (
+            <tr>  
+              <td colSpan="4" style={{ textAlign: "center" }}>Your cart is empty</td>
+            </tr>
+          )}
         </tbody>
       </table>
-
       <div style={styles.coupon}>
         <input type="text" placeholder="Coupon Code" style={styles.couponInput} />
         <button style={styles.button}>Apply Coupon</button>
@@ -101,16 +147,12 @@ const Cart = () => {
 
       <div style={styles.cartSummary}>
         <div style={styles.summaryRow}>
-          <span>Subtotal:</span>
-          <span>${calculateSubtotal()}</span>
-        </div>
-        <div style={styles.summaryRow}>
           <span>Shipping:</span>
           <span>Free</span>
         </div>
         <div style={styles.summaryRow}>
           <span>Total:</span>
-          <span>${calculateSubtotal()}</span>
+          <span>${cartTotal.toFixed(2)}</span>
         </div>
         <button style={{ ...styles.button, width: "100%" }}>Proceed to Checkout</button>
       </div>

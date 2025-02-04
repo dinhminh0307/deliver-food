@@ -1,12 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import AlertDialog from "../../components/dialogs/AlertDialog";
 
 const ProductItem = ({ id, image, name, description, price }) => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [alert, setAlert] = useState({ message: "", type: "" });
+
+  useEffect(() => {
+    if (alert.message) {
+      setAlert((prev) => ({ ...prev, visible: true }));
+      const timer = setTimeout(() => {
+        setAlert((prev) => ({ ...prev, visible: false }));
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert.message]);
 
   const styles = {
+    alertContainer: {
+      position: "fixed",
+      top: "10px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      zIndex: 1000,
+      width: "80%",
+      maxWidth: "400px",
+    },
+
+    modalOverlay: {
+      position: "fixed", // Ensure it covers the full screen
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000, // Make sure it's above other elements
+    },
+    modalContent: {
+      backgroundColor: "#fff",
+      padding: "20px",
+      borderRadius: "8px",
+      maxWidth: "400px",
+      textAlign: "center",
+      position: "relative",
+      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+    },
+
     card: {
       border: "1px solid #ddd",
       borderRadius: "8px",
@@ -35,26 +77,6 @@ const ProductItem = ({ id, image, name, description, price }) => {
       fontWeight: "bold",
       color: "#e63946",
     },
-    modalOverlay: {
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    modalContent: {
-      backgroundColor: "#fff",
-      padding: "20px",
-      borderRadius: "8px",
-      maxWidth: "400px",
-      textAlign: "center",
-      position: "relative",
-      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-    },
     button: {
       padding: "10px 20px",
       backgroundColor: loading ? "#bbb" : "#f44",
@@ -72,20 +94,40 @@ const ProductItem = ({ id, image, name, description, price }) => {
       fontWeight: "bold",
       cursor: "pointer",
     },
-    message: {
-      marginTop: "15px",
-      fontWeight: "bold",
-    },
   };
 
+  const validateItemCart = async () => {
+    if (!id) {
+      setAlert({ message: "Invalid product ID.", type: "warning" });
+      return;
+    }
+  
+    try {
+      const response = await fetch(`http://localhost:8080/cart/item/check?productId=${id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+  
+      if (response.ok) {
+        handleAddToCart();
+        setAlert({ message: "Item is valid in cart.", type: "success" });
+      } else {
+        const errorText = await response.text();
+        setAlert({ message: `Validation failed: ${errorText}`, type: "fail" });
+      }
+    } catch (error) {
+      setAlert({ message: "Failed to validate item.", type: "fail" });
+    }
+    setShowModal(false);
+  };
+  
   const handleAddToCart = async () => {
     setLoading(true);
-    setSuccessMessage("");
-    setErrorMessage("");
+    setAlert({ message: "", type: "" });
   
-    // ✅ Correcting the JSON format to match Postman request
     const productPayload = {
-      productId: id, // ✅ Ensure correct key name
+      productId: id,
       name: name,
       price: price,
       description: description,
@@ -94,40 +136,32 @@ const ProductItem = ({ id, image, name, description, price }) => {
     try {
       const response = await fetch("http://localhost:8080/cart/add", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // ✅ Ensures cookies are sent
-        body: JSON.stringify(productPayload), // ✅ Correct payload format
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(productPayload),
       });
   
       if (!response.ok) {
-        const errorText = await response.text(); // Read error message
+        const errorText = await response.text();
         throw new Error(errorText || "Failed to add item to cart.");
       }
   
-      const contentType = response.headers.get("content-type");
-      let data;
-  
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json(); // ✅ Parse response if JSON
-        setSuccessMessage("Product added to cart successfully!");
-        console.log("Cart Response:", data);
-      } else {
-        setSuccessMessage("Product added to cart successfully (no response body).");
-      }
+      setAlert({ message: "Product added to cart successfully!", type: "success" });
     } catch (error) {
-      console.error("Error adding to cart:", error.message);
-      setErrorMessage("Failed to add product. Please try again.");
+      setAlert({ message: "Failed to add product. Please try again.", type: "fail" });
     } finally {
       setLoading(false);
     }
+    
   };
   
-  
-
   return (
     <>
+      {alert.visible && (
+        <div style={styles.alertContainer}>
+          <AlertDialog message={alert.message} type={alert.type} />
+        </div>
+      )}
       <div
         style={styles.card}
         onClick={() => setShowModal(true)}
@@ -150,12 +184,9 @@ const ProductItem = ({ id, image, name, description, price }) => {
             <h2 style={styles.name}>{name}</h2>
             <p style={styles.description}>{description}</p>
             <p style={styles.price}>${price.toFixed(2)}</p>
-            <button style={styles.button} onClick={handleAddToCart} disabled={loading}>
+            <button style={styles.button} onClick={validateItemCart} disabled={loading}>
               {loading ? "Adding..." : "Add to Cart"}
             </button>
-
-            {successMessage && <p style={{ ...styles.message, color: "green" }}>{successMessage}</p>}
-            {errorMessage && <p style={{ ...styles.message, color: "red" }}>{errorMessage}</p>}
           </div>
         </div>
       )}

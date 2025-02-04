@@ -104,7 +104,9 @@ const Cart = () => {
       );
   
       if (!response.ok) {
-        throw new Error(await response.text());
+        const errorResponse = await response.text();
+        setAlert({ message: errorResponse, type: "fail" });
+        throw new Error(errorResponse);
       }
   
       const data = await response.json();
@@ -113,7 +115,7 @@ const Cart = () => {
       setAlert({ message: "Item removed successfully", type: "success" });
     } catch (error) {
       console.error("Error removing item:", error);
-      setAlert({ message: "Failed to remove item", type: "fail" });
+      setAlert({ message: error, type: "fail" });
     }
   };
 
@@ -161,3 +163,4 @@ const Cart = () => {
 };
 
 export default Cart;
+

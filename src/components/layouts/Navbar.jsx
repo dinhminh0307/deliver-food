@@ -51,7 +51,7 @@ const Navbar = () => {
       border: "none",
       cursor: "pointer",
       padding: "8px 12px",
-      color: "#555",
+      color: "555",
       fontSize: "16px",
     },
     iconsContainer: {
@@ -129,10 +129,10 @@ const Navbar = () => {
         </div>
 
         {/* Cart Icon */}
-        <div style={styles.icon}>
+        <Link to="/cart" style={styles.icon}>
           <FaShoppingCart />
           <span style={styles.badge}>3</span>
-        </div>
+        </Link>
 
         {/* User Icon */}
         <div style={styles.icon}>

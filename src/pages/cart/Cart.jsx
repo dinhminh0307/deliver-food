@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CartItem from "../../components/forms/CartItem";
 import AlertDialog from "../../components/dialogs/AlertDialog";
+import CheckoutModal from "../../components/forms/CheckoutModal";
 
 const Cart = () => {
   const styles = {
@@ -60,6 +61,7 @@ const Cart = () => {
   const [cartTotal, setCartTotal] = useState(0);
   const [cart, setCart] = useState(null);
   const [alert, setAlert] = useState({ message: "", type: "" });
+  const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserCart = async () => {
@@ -119,6 +121,25 @@ const Cart = () => {
     }
   };
 
+  // Handle modal form submission.
+  const handleModalSubmit = (formData) => {
+    // Build your request body using the form values.
+    // Note that accountIds and productIds would typically be derived from your current user/cart context.
+    const requestBody = {
+      dayOfWeek: formData.dayOfWeek,
+      scheduleTime: formData.scheduleTime,
+      name: formData.name,
+      category: formData.category,
+      // accountIds and productIds are excluded from the form;
+      // you can add them here if needed.
+    };
+    console.log("Request Body:", requestBody);
+
+    // Here you could make an API call with `requestBody`
+    // For now, simply close the modal.
+    setModalOpen(false);
+  };
+
   return (
     <div style={styles.container}>
       <h2>Your Cart</h2>
@@ -134,10 +155,19 @@ const Cart = () => {
         </thead>
         <tbody>
           {cartItems.length > 0 ? (
-            cartItems.map((item) => <CartItem key={item.productId} item={item} cartId={cart.cartId} removeItem={removeItem}/>)
+            cartItems.map((item) => (
+              <CartItem
+                key={item.productId}
+                item={item}
+                cartId={cart.cartId}
+                removeItem={removeItem}
+              />
+            ))
           ) : (
             <tr>  
-              <td colSpan="4" style={{ textAlign: "center" }}>Your cart is empty</td>
+              <td colSpan="4" style={{ textAlign: "center" }}>
+                Your cart is empty
+              </td>
             </tr>
           )}
         </tbody>
@@ -156,11 +186,22 @@ const Cart = () => {
           <span>Total:</span>
           <span>${cartTotal.toFixed(2)}</span>
         </div>
-        <button style={{ ...styles.button, width: "100%" }}>Proceed to Checkout</button>
+        <button
+          style={{ ...styles.button, width: "100%" }}
+          onClick={() => setModalOpen(true)}
+        >
+          Proceed to Checkout
+        </button>
       </div>
+
+      {/* Render the modal */}
+      <CheckoutModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={handleModalSubmit}
+      />
     </div>
   );
 };
 
 export default Cart;
-

@@ -4,8 +4,11 @@ import AlertDialog from "../../components/dialogs/AlertDialog";
 const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
   // Local state for the current user
   const [user, setUser] = useState(null);
+  // Local state for list of users to populate the dropdown
+  const [listUsers, setListUsers] = useState([]);
   // Local state for alerts
   const [alert, setAlert] = useState({ message: "", type: "" });
+  
   // Initial state for the form fields.
   const initialFormState = {
     dayOfWeek: "",
@@ -16,7 +19,7 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
   };
   const [formData, setFormData] = useState(initialFormState);
 
-  // Fetch current user data when the component mounts
+  // Fetch current user and list of users when the component mounts
   useEffect(() => {
     const getCurrentUser = async () => {
       try {
@@ -36,12 +39,37 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
         setUser(data);
       } catch (error) {
         console.error("Error fetching user:", error);
-        // Optionally, set a more descriptive error message here
         setAlert({ message: "Failed to fetch user", type: "fail" });
       }
     };
 
+    const getListUser = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/user/get?page=0&size=10", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          const error = await response.text();
+          setAlert({ message: error, type: "fail" });
+          throw new Error(error);
+        }
+
+        const data = await response.json();
+        console.log("User data:", data)
+        // Assuming data is an array. If it's wrapped in an object, adjust accordingly.
+        setListUsers(data.content);
+        console.log(listUsers);
+      } catch (error) {
+        console.error("Error fetching list of users:", error);
+        setAlert({ message: "Failed to fetch list user", type: "fail" });
+      }
+    };
+
     getCurrentUser();
+    getListUser();
   }, []);
 
   // Handle input changes.
@@ -53,7 +81,6 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
   // Handle form submission.
   const handleSubmit = (e) => {
     e.preventDefault();
-    // If an onSubmit callback is provided, pass the form data and user data
     if (onSubmit) {
       onSubmit({ ...formData, user });
     }
@@ -63,21 +90,19 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
     
     // Reset the modal form fields
     setFormData(initialFormState);
-
     setAlert({ message: "", type: "" });
   };
 
   const closeModal = () => {
-    // Reset the modal form fields
+    // Reset the modal form fields and clear alerts.
     setFormData(initialFormState);
-
     setAlert({ message: "", type: "" });
     
     // Call the onClose prop to notify the parent to close the modal
     if (onClose) {
-        onClose();
+      onClose();
     }
-  }
+  };
 
   // Inline styles for the modal.
   const overlayStyle = {
@@ -214,7 +239,7 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
               placeholder="Enter category"
             />
           </div>
-          {/* Dropdown Field for Inviting a User */}
+          {/* Dropdown Field for Inviting a User dynamically populated */}
           <div style={formGroupStyle}>
             <label style={labelStyle} htmlFor="inviteUser">
               Invite User
@@ -227,9 +252,12 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
               style={inputStyle}
             >
               <option value="">Select a user</option>
-              <option value="user1">User 1</option>
-              <option value="user2">User 2</option>
-              <option value="user3">User 3</option>
+              {listUsers &&
+                listUsers.map((usr) => (
+                  <option key={usr.account_id} value={usr.account_id}>
+                    {usr.firstName + " " + usr.lastName}
+                  </option>
+                ))}
             </select>
           </div>
           <button type="submit" style={buttonStyle}>

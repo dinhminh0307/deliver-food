@@ -8,7 +8,8 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
     dayOfWeek: "",
     scheduleTime: "",
     name: "",
-    category: ""
+    category: "",
+    inviteUser: "" // New field for inviting a user
   });
 
   // Handle input changes.
@@ -153,6 +154,24 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
               style={inputStyle}
               placeholder="Enter category"
             />
+          </div>
+          {/* New Dropdown Field for Inviting a User */}
+          <div style={formGroupStyle}>
+            <label style={labelStyle} htmlFor="inviteUser">
+              Invite User
+            </label>
+            <select
+              id="inviteUser"
+              name="inviteUser"
+              value={formData.inviteUser}
+              onChange={handleChange}
+              style={inputStyle}
+            >
+              <option value="">Select a user</option>
+              <option value="user1">User 1</option>
+              <option value="user2">User 2</option>
+              <option value="user3">User 3</option>
+            </select>
           </div>
           <button type="submit" style={buttonStyle}>
             Submit

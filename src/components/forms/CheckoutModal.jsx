@@ -253,7 +253,7 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
             >
               <option value="">Select a user</option>
               {listUsers &&
-                listUsers.map((usr) => (
+                listUsers.filter((usr) => usr.account_id !== user.account_id).map((usr) => (
                   <option key={usr.account_id} value={usr.account_id}>
                     {usr.firstName + " " + usr.lastName}
                   </option>

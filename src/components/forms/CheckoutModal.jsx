@@ -1,16 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import AlertDialog from "../../components/dialogs/AlertDialog";
 
 const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
-  if (!isOpen) return null;
-
+  // Local state for the current user
+  const [user, setUser] = useState(null);
+  // Local state for alerts
+  const [alert, setAlert] = useState({ message: "", type: "" });
   // Local state for the form fields.
   const [formData, setFormData] = useState({
     dayOfWeek: "",
     scheduleTime: "",
     name: "",
     category: "",
-    inviteUser: "" // New field for inviting a user
+    inviteUser: "" // Field for inviting a user
   });
+
+  // Fetch current user data when the component mounts
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/currentUser", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          const error = await response.text();
+          setAlert({ message: error, type: "fail" });
+          throw new Error(error);
+        }
+
+        const data = await response.json();
+        setUser(data);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        // Optionally, set a more descriptive error message here
+        setAlert({ message: "Failed to fetch user", type: "fail" });
+      }
+    };
+
+    getCurrentUser();
+  }, []);
 
   // Handle input changes.
   const handleChange = (e) => {
@@ -21,7 +52,14 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
   // Handle form submission.
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    // If an onSubmit callback is provided, pass the form data and user data
+    if (onSubmit) {
+      onSubmit({ ...formData, user });
+    }
+    console.log("User Info:", user);
+    setAlert({ message: "Form submitted successfully", type: "success" });
+    // Optionally, you can close the modal after a successful submission:
+    // onClose();
   };
 
   // Inline styles for the modal.
@@ -82,6 +120,9 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
     cursor: "pointer"
   };
 
+  // If the modal is not open, don't render anything.
+  if (!isOpen) return null;
+
   return (
     <div style={overlayStyle}>
       <div style={modalStyle}>
@@ -89,6 +130,7 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
           X
         </button>
         <h3>Checkout Details</h3>
+        {alert.message && <AlertDialog message={alert.message} type={alert.type} />}
         <form onSubmit={handleSubmit}>
           <div style={formGroupStyle}>
             <label style={labelStyle} htmlFor="dayOfWeek">
@@ -155,7 +197,7 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
               placeholder="Enter category"
             />
           </div>
-          {/* New Dropdown Field for Inviting a User */}
+          {/* Dropdown Field for Inviting a User */}
           <div style={formGroupStyle}>
             <label style={labelStyle} htmlFor="inviteUser">
               Invite User

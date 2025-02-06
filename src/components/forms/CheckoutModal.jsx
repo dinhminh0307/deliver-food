@@ -6,14 +6,15 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
   const [user, setUser] = useState(null);
   // Local state for alerts
   const [alert, setAlert] = useState({ message: "", type: "" });
-  // Local state for the form fields.
-  const [formData, setFormData] = useState({
+  // Initial state for the form fields.
+  const initialFormState = {
     dayOfWeek: "",
     scheduleTime: "",
     name: "",
     category: "",
     inviteUser: "" // Field for inviting a user
-  });
+  };
+  const [formData, setFormData] = useState(initialFormState);
 
   // Fetch current user data when the component mounts
   useEffect(() => {
@@ -56,11 +57,27 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
     if (onSubmit) {
       onSubmit({ ...formData, user });
     }
-    console.log("User Info:", user);
+    
     setAlert({ message: "Form submitted successfully", type: "success" });
-    // Optionally, you can close the modal after a successful submission:
-    // onClose();
+    console.log("User Info:", user);
+    
+    // Reset the modal form fields
+    setFormData(initialFormState);
+
+    setAlert({ message: "", type: "" });
   };
+
+  const closeModal = () => {
+    // Reset the modal form fields
+    setFormData(initialFormState);
+
+    setAlert({ message: "", type: "" });
+    
+    // Call the onClose prop to notify the parent to close the modal
+    if (onClose) {
+        onClose();
+    }
+  }
 
   // Inline styles for the modal.
   const overlayStyle = {
@@ -126,7 +143,7 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
   return (
     <div style={overlayStyle}>
       <div style={modalStyle}>
-        <button style={closeBtnStyle} onClick={onClose}>
+        <button style={closeBtnStyle} onClick={closeModal}>
           X
         </button>
         <h3>Checkout Details</h3>

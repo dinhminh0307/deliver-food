@@ -135,9 +135,9 @@ const Cart = () => {
     };
     console.log("Request Body:", requestBody);
 
-    // Here you could make an API call with `requestBody`
-    // For now, simply close the modal.
-    setModalOpen(false);
+    setTimeout(() => {
+      setModalOpen(false);
+    }, 3000);
   };
 
   return (

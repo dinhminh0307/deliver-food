@@ -122,7 +122,7 @@ const Cart = () => {
   };
 
   // Handle modal form submission.
-  const handleModalSubmit = (formData) => {
+  const handleModalSubmit = async (formData) => {
     // Build your request body using the form values.
     // Note that accountIds and productIds would typically be derived from your current user/cart context.
     const requestBody = {
@@ -135,7 +135,27 @@ const Cart = () => {
       // accountIds and productIds are excluded from the form;
       // you can add them here if needed.
     };
-    console.log("Request Body:", requestBody);
+    
+    // send post request with the request body
+    try {
+      const response = await fetch("http://localhost:8080/schedule/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const data = await response.text();
+        setAlert({message: data, type: "fail"});
+        throw new Error(data);
+      }
+      setAlert({message: "add successfully", type: "success"});
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      setAlert({ message: "Failed to fetch cart", type: "fail" });
+    }
+  
 
     setTimeout(() => {
       setModalOpen(false);

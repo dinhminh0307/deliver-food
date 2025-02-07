@@ -15,7 +15,8 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
     scheduleTime: "",
     name: "",
     category: "",
-    inviteUser: "" // Field for inviting a user
+    inviteUser: -1, // Field for inviting a user
+    accountIds: []
   };
   const [formData, setFormData] = useState(initialFormState);
 
@@ -58,10 +59,8 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
         }
 
         const data = await response.json();
-        console.log("User data:", data)
         // Assuming data is an array. If it's wrapped in an object, adjust accordingly.
         setListUsers(data.content);
-        console.log(listUsers);
       } catch (error) {
         console.error("Error fetching list of users:", error);
         setAlert({ message: "Failed to fetch list user", type: "fail" });
@@ -81,12 +80,15 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit }) => {
   // Handle form submission.
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Convert formData.inviteUser from string to integer
+    const inviteUserId = parseInt(formData.inviteUser, 10);
+
+    formData.accountIds = [user.account_id, inviteUserId]
     if (onSubmit) {
       onSubmit({ ...formData, user });
     }
     
     setAlert({ message: "Form submitted successfully", type: "success" });
-    console.log("User Info:", user);
     
     // Reset the modal form fields
     setFormData(initialFormState);

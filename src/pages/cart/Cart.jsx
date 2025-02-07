@@ -130,6 +130,8 @@ const Cart = () => {
       scheduleTime: formData.scheduleTime,
       name: formData.name,
       category: formData.category,
+      accountIds: formData.accountIds,
+      productId:  (cart.products || []).map((product) => product.productId)
       // accountIds and productIds are excluded from the form;
       // you can add them here if needed.
     };

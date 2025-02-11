@@ -61,7 +61,32 @@ const Timetable = () => {
     },
   };
 
-  // Generate time slots from 1:00 AM to 12:00 AM
+  const scheduleData = [
+    {
+      schedule_id: 1,
+      dayOfWeek: "MONDAY",
+      scheduleTime: "10:30:00",
+      name: "Morning Workout",
+      category: "Game",
+    },
+    {
+      schedule_id: 2,
+      dayOfWeek: "WEDNESDAY",
+      scheduleTime: "14:00:00",
+      name: "Project Meeting",
+      category: "Work",
+    },
+    {
+      schedule_id: 3,
+      dayOfWeek: "FRIDAY",
+      scheduleTime: "18:30:00",
+      name: "Gym",
+      category: "Fitness",
+    },
+  ];
+
+  const daysOfWeek = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
+
   const generateTimeSlots = () => {
     const slots = [];
     let hour = 1;
@@ -80,13 +105,18 @@ const Timetable = () => {
 
   const timeSlots = generateTimeSlots();
 
+  const getTimeRow = (timeString) => {
+    const [hour, minute] = timeString.split(":").map(Number);
+    return hour * 2 + (minute === 30 ? 1 : 0) + 1;
+  };
+
   return (
     <div style={styles.container}>
       <h2>Weekly Timetable</h2>
       <div style={styles.timetable}>
         {/* Day Headers */}
         <div style={styles.timeLabel}></div> {/* Empty cell for time column header */}
-        {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => (
+        {daysOfWeek.map(day => (
           <div key={day} style={styles.dayHeader}>
             {day}
           </div>
@@ -113,16 +143,19 @@ const Timetable = () => {
           ))
         ))}
 
-        {/* Example Events */}
-        <div style={{ ...styles.event, gridColumn: "2", gridRow: "3 / span 4" }}>
-          Morning Meeting
-        </div>
-        <div style={{ ...styles.event, gridColumn: "4", gridRow: "10 / span 3" }}>
-          Gardening
-        </div>
-        <div style={{ ...styles.eventLong, gridColumn: "7", gridRow: "15 / span 8" }}>
-          Soccer Match
-        </div>
+        {/* Dynamically Rendered Events */}
+        {scheduleData.map((event) => {
+          const dayIndex = daysOfWeek.indexOf(event.dayOfWeek);
+          const row = getTimeRow(event.scheduleTime);
+          return (
+            <div
+              key={event.schedule_id}
+              style={{ ...styles.event, gridColumn: dayIndex + 2, gridRow: row }}
+            >
+              {event.name}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

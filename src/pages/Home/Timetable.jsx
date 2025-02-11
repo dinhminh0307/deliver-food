@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const Timetable = () => {
+  const [scheduleDatas, setScheduleData] = useState([]);
+  const [alert, setAlert] = useState(null);
+
   const styles = {
     container: {
       maxWidth: "1200px",
@@ -12,8 +15,8 @@ const Timetable = () => {
     },
     timetable: {
       display: "grid",
-      gridTemplateColumns: "100px repeat(7, 1fr)", // One column for time slots and seven for days
-      gridAutoRows: "40px", // Each row represents a 30-minute interval
+      gridTemplateColumns: "100px repeat(7, 1fr)",
+      gridAutoRows: "40px",
       gap: "2px",
     },
     dayHeader: {
@@ -51,41 +54,36 @@ const Timetable = () => {
       fontSize: "14px",
       textAlign: "center",
     },
-    eventLong: {
-      backgroundColor: "#FF9800",
-      color: "#fff",
-      padding: "10px",
-      borderRadius: "4px",
-      fontSize: "14px",
-      textAlign: "center",
-    },
   };
 
-  const scheduleData = [
-    {
-      schedule_id: 1,
-      dayOfWeek: "MONDAY",
-      scheduleTime: "10:30:00",
-      name: "Morning Workout",
-      category: "Game",
-    },
-    {
-      schedule_id: 2,
-      dayOfWeek: "WEDNESDAY",
-      scheduleTime: "14:00:00",
-      name: "Project Meeting",
-      category: "Work",
-    },
-    {
-      schedule_id: 3,
-      dayOfWeek: "FRIDAY",
-      scheduleTime: "18:30:00",
-      name: "Gym",
-      category: "Fitness",
-    },
-  ];
-
   const daysOfWeek = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
+
+  useEffect(() => {
+    const getUserSchedule = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/schedule/get/current", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          const error = await response.text();
+          setAlert({ message: error, type: "fail" });
+          throw new Error(error);
+        }
+
+        const data = await response.json();
+        setScheduleData(data);
+        console.log(data);
+      } catch (error) {
+        console.error("Error fetching schedule:", error);
+        setAlert({ message: "Failed to fetch schedule", type: "fail" });
+      }
+    };
+
+    getUserSchedule();
+  }, []);
 
   const generateTimeSlots = () => {
     const slots = [];
@@ -113,45 +111,34 @@ const Timetable = () => {
   return (
     <div style={styles.container}>
       <h2>Weekly Timetable</h2>
+      {alert && <div style={{ color: "red" }}>{alert.message}</div>}
       <div style={styles.timetable}>
-        {/* Day Headers */}
-        <div style={styles.timeLabel}></div> {/* Empty cell for time column header */}
+        <div style={styles.timeLabel}></div>
         {daysOfWeek.map(day => (
-          <div key={day} style={styles.dayHeader}>
-            {day}
-          </div>
+          <div key={day} style={styles.dayHeader}>{day}</div>
         ))}
-
-        {/* Time Labels */}
         {timeSlots.map((time, index) => (
-          <div key={index} style={styles.timeLabel}>
-            {time}
-          </div>
+          <div key={index} style={styles.timeLabel}>{time}</div>
         ))}
-
-        {/* Time Slots for Days */}
         {Array.from({ length: 7 }).map((_, dayIndex) => (
           timeSlots.map((_, slotIndex) => (
-            <div
-              key={`${dayIndex}-${slotIndex}`}
-              style={{
-                ...styles.timeSlot,
-                gridColumn: dayIndex + 2, // Days start at the second column
-                gridRow: slotIndex + 2,  // Time slots start below the headers
-              }}
-            ></div>
+            <div key={`${dayIndex}-${slotIndex}`} style={{
+              ...styles.timeSlot,
+              gridColumn: dayIndex + 2,
+              gridRow: slotIndex + 2,
+            }}></div>
           ))
         ))}
-
-        {/* Dynamically Rendered Events */}
-        {scheduleData.map((event) => {
+        {scheduleDatas.map((event, index) => {
           const dayIndex = daysOfWeek.indexOf(event.dayOfWeek);
           const row = getTimeRow(event.scheduleTime);
+          if (dayIndex === -1) return null;
           return (
-            <div
-              key={event.schedule_id}
-              style={{ ...styles.event, gridColumn: dayIndex + 2, gridRow: row }}
-            >
+            <div key={`event-${index}`} style={{
+              ...styles.event,
+              gridColumn: dayIndex + 2,
+              gridRow: row,
+            }}>
               {event.name}
             </div>
           );

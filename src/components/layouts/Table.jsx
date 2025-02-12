@@ -18,7 +18,6 @@ const Table = ({ columns, data, actions, tableType, toggleTableType }) => {
   };
 
   const handleSaveEdit = (updatedData) => {
-    console.log("Updated Data:", updatedData);
     setEditModalOpen(false);
     setSelectedRow(null);
   };

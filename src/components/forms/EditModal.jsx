@@ -1,15 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import AlertDialog from "../../components/dialogs/AlertDialog";
 
 const EditModal = ({ isOpen, onClose, data, onSave }) => {
+  const [alert, setAlert] = useState({ message: "", type: "" });
+  // Ensure modal is not rendered if not open
   if (!isOpen) return null;
-    console.log(data);
+
+  // ✅ Correctly update form data when data changes
   const [formData, setFormData] = useState({
-    name: data?.name || "",
-    price: data?.price || "",
-    description: data?.description || "",
-    imageUrl: data?.imageUrl || "",
+    productId: data.productId,
+    name: "",
+    price: "",
+    description: "",
+    imageUrl: "",
   });
+
+  useEffect(() => {
+    if (data) {
+      setFormData({
+        productId: data.productId,
+        name: data?.name || "",
+        price: data?.price || "",
+        description: data?.description || "",
+        imageUrl: data?.imageUrl || "",
+      });
+    }
+  }, [data]); // Updates formData when data prop changes
 
   const handleChange = (e) => {
     setFormData({
@@ -18,14 +35,38 @@ const EditModal = ({ isOpen, onClose, data, onSave }) => {
     });
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
+    try {
+        console.log(formData)
+      const response = await fetch(`http://localhost:8080/product/update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Important to include cookies
+        body: JSON.stringify(formData), // ✅ Sending updated formData instead of old data
+      });
+
+      if (response.ok) {
+        setAlert({ message: "Edit successfully", type: "success" });
+        console.log("Updated Data:", await response.json());
+      } else {
+        const errorText = await response.text();
+        setAlert({ message: errorText, type: "fail" });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setAlert({ message: error.message, type: "fail" }); // ✅ Fix error handling
+    }
+
     onSave(formData);
     onClose();
   };
 
   return (
     <div className="modal d-block bg-dark bg-opacity-50">
+      {alert.message && <AlertDialog message={alert.message} type={alert.type} />}
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content p-4 border-0 shadow-lg">
           <div className="modal-header border-0">

@@ -1,16 +1,30 @@
 import React, { useState } from "react";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import AddFormModal from "../forms/AddFormModal";
+import EditModal from "../forms/EditModal";
 
 const Table = ({ columns, data, actions, tableType, toggleTableType }) => {
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
 
   const handleAddClick = () => {
     setModalOpen(true);
   };
 
+  const handleEdit = (rowData) => {
+    setSelectedRow(rowData);
+    setEditModalOpen(true);
+  };
+
+  const handleSaveEdit = (updatedData) => {
+    console.log("Updated Data:", updatedData);
+    setEditModalOpen(false);
+    setSelectedRow(null);
+  };
+
   return (
-    <div className="p-8 bg-white rounded shadow-md w-full">
+    <div className="p-8 bg-white rounded shadow-md w-full relative">
       <div className="flex justify-between mb-4">
         <h2 className="text-2xl font-bold">
           {tableType === "product" ? "Products' List" : "Customers' List"}
@@ -21,13 +35,14 @@ const Table = ({ columns, data, actions, tableType, toggleTableType }) => {
         >
           + New {tableType === "product" ? "Product" : "Customer"}
         </button>
-
       </div>
+
       <input
         type="text"
         placeholder={`Search ${tableType}...`}
         className="w-full p-2 border rounded mb-4"
       />
+
       <table className="w-full border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-100">
@@ -49,7 +64,12 @@ const Table = ({ columns, data, actions, tableType, toggleTableType }) => {
                     <button className="text-blue-500"><FaEye /></button>
                   )}
                   {actions.includes("edit") && (
-                    <button className="text-yellow-500"><FaEdit /></button>
+                    <button 
+                      className="text-yellow-500" 
+                      onClick={() => handleEdit(row)}
+                    >
+                      <FaEdit />
+                    </button>
                   )}
                   {actions.includes("delete") && (
                     <button className="text-red-500"><FaTrash /></button>
@@ -74,6 +94,16 @@ const Table = ({ columns, data, actions, tableType, toggleTableType }) => {
         <AddFormModal 
           onClose={() => setModalOpen(false)} 
           formType={tableType}
+        />
+      )}
+
+      {/* ✅ Ensure the EditModal is at the END of the div */}
+      {isEditModalOpen && selectedRow && (
+        <EditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          data={selectedRow}
+          onSave={handleSaveEdit}
         />
       )}
     </div>

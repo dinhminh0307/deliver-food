@@ -131,6 +131,7 @@ const Home = () => {
                 name={product.name}
                 description={product.description}
                 price={product.price}
+                image={product.imageUrl}
               />
             ))
           ) : (

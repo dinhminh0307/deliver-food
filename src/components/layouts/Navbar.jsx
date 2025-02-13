@@ -1,8 +1,15 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { FaHeart, FaShoppingCart, FaUser } from "react-icons/fa"; // Import icons from react-icons
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FaHeart, FaShoppingCart, FaUser } from "react-icons/fa";
+import AlertDialog from "../../components/dialogs/AlertDialog";
 
 const Navbar = () => {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [alert, setAlert] = useState({ message: "", type: "" });
+  const dropdownRef = useRef(null);
+
+  const navigate = useNavigate(); 
+
   const styles = {
     navbar: {
       width: "100%",
@@ -30,9 +37,6 @@ const Navbar = () => {
       fontWeight: 500,
       transition: "color 0.2s",
     },
-    navLinkHover: {
-      color: "#000",
-    },
     searchBar: {
       display: "flex",
       alignItems: "center",
@@ -51,13 +55,13 @@ const Navbar = () => {
       border: "none",
       cursor: "pointer",
       padding: "8px 12px",
-      color: "555",
       fontSize: "16px",
     },
     iconsContainer: {
       display: "flex",
       alignItems: "center",
       gap: "16px",
+      position: "relative", // Needed for dropdown positioning
     },
     icon: {
       position: "relative",
@@ -76,7 +80,79 @@ const Navbar = () => {
       borderRadius: "50%",
       padding: "2px 6px",
     },
+    dropdown: {
+      position: "absolute",
+      top: "40px", // Adjust to align under the user icon
+      right: "0",
+      backgroundColor: "#fff",
+      boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+      borderRadius: "8px",
+      width: "160px",
+      padding: "8px 0",
+      display: "flex",
+      flexDirection: "column",
+      zIndex: 1000,
+    },
+    dropdownItem: {
+      padding: "10px 16px",
+      textDecoration: "none",
+      color: "#333",
+      fontWeight: "500",
+      transition: "background 0.2s",
+      cursor: "pointer",
+    },
+    dropdownItemHover: {
+      backgroundColor: "#f5f5f5",
+    },
   };
+
+
+  const toggleDropdown = () => {
+    setShowDropdown((prev) => !prev);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const logOutHandle = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // ✅ Important: Ensures cookies are sent & removed
+      });
+  
+      if (response.ok) {
+        const responseData = await response.text();
+        setAlert({ message: responseData, type: "success" });
+  
+        // ✅ Ensure browser recognizes the cookie removal
+        setTimeout(() => {
+          navigate("/signup"); 
+        }, 1000);
+      } else {
+        const errorText = await response.text();
+        setAlert({ message: errorText, type: "fail" });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setAlert({ message: error.message, type: "fail" });
+    }
+  };
+  
+  
 
   return (
     <nav style={styles.navbar}>
@@ -112,11 +188,7 @@ const Navbar = () => {
 
       {/* Search Bar */}
       <div style={styles.searchBar}>
-        <input
-          type="text"
-          placeholder="What are you looking for?"
-          style={styles.searchInput}
-        />
+        <input type="text" placeholder="What are you looking for?" style={styles.searchInput} />
         <button style={styles.searchButton}>🔍</button>
       </div>
 
@@ -134,11 +206,29 @@ const Navbar = () => {
           <span style={styles.badge}>3</span>
         </Link>
 
-        {/* User Icon */}
-        <div style={styles.icon}>
-          <FaUser />
+        {/* User Icon with Dropdown */}
+        <div style={{ position: "relative" }} ref={dropdownRef}>
+          <div style={styles.icon} onClick={toggleDropdown}>
+            <FaUser />
+          </div>
+          {showDropdown && (
+            <div style={styles.dropdown}>
+              <Link to="/profile" style={styles.dropdownItem}>
+                View Profile
+              </Link>
+              <Link to="/settings" style={styles.dropdownItem}>
+                Settings
+              </Link>
+              <div style={{ ...styles.dropdownItem, ...styles.dropdownItemHover }} onClick={logOutHandle}>
+                Logout
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Show alert messages */}
+      {alert.message && <AlertDialog message={alert.message} type={alert.type} />}
     </nav>
   );
 };

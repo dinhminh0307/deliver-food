@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CartItem from "../../components/forms/CartItem";
 import AlertDialog from "../../components/dialogs/AlertDialog";
 import CheckoutModal from "../../components/forms/CheckoutModal";
+import { useAuth } from "../../context/AuthContext";
 
 const Cart = () => {
   const styles = {
@@ -62,8 +63,16 @@ const Cart = () => {
   const [cart, setCart] = useState(null);
   const [alert, setAlert] = useState({ message: "", type: "" });
   const [isModalOpen, setModalOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setCartItems([]);
+      setCartTotal(0);
+      setCart(null);
+      return;
+    }
+
     const fetchUserCart = async () => {
       try {
         const response = await fetch("http://localhost:8080/cart/currentUser", {
@@ -87,7 +96,7 @@ const Cart = () => {
     };
   
     fetchUserCart();
-  }, []);
+  }, [isAuthenticated]);
   
   const removeItem = async (productId, cartId) => {
     if (!productId || !cartId) {

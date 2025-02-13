@@ -2,12 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaHeart, FaShoppingCart, FaUser } from "react-icons/fa";
 import AlertDialog from "../../components/dialogs/AlertDialog";
+import { useAuth } from "../../context/AuthContext";
 
 const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [alert, setAlert] = useState({ message: "", type: "" });
   const dropdownRef = useRef(null);
-
+  const { logOut } = useAuth();
   const navigate = useNavigate(); 
 
   const styles = {
@@ -131,24 +132,39 @@ const Navbar = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // ✅ Important: Ensures cookies are sent & removed
+        credentials: "include", // Important: Ensures cookies are sent & removed
       });
   
       if (response.ok) {
         const responseData = await response.text();
+        
+        logOut();
+  
+        // Show the success alert immediately
         setAlert({ message: responseData, type: "success" });
   
-        // ✅ Ensure browser recognizes the cookie removal
+        // After 1 second, navigate and clear the alert
         setTimeout(() => {
           navigate("/signup"); 
+          setAlert({ message: "", type: "" }); // Clear alert
         }, 1000);
       } else {
         const errorText = await response.text();
         setAlert({ message: errorText, type: "fail" });
+  
+        // Automatically clear fail alert after 3 seconds
+        setTimeout(() => {
+          setAlert({ message: "", type: "" });
+        }, 3000);
       }
     } catch (error) {
       console.error("Error:", error);
       setAlert({ message: error.message, type: "fail" });
+  
+      // Automatically clear error alert after 3 seconds
+      setTimeout(() => {
+        setAlert({ message: "", type: "" });
+      }, 3000);
     }
   };
   

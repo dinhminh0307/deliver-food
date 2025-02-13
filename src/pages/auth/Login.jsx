@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import AlertDialog from "../../components/dialogs/AlertDialog";
 
 const ROLE = Object.freeze({
     ADMIN: 'ADMIN',
@@ -17,6 +19,8 @@ const Login = () => {
     imageUrl: null,
   });
 
+  const [alert, setAlert] = useState({ message: "", type: "" });
+  const { setIsAuthenticated } = useAuth();
   const navigate = useNavigate(); // Hook for navigation
 
   const handleChange = (e) => {
@@ -39,7 +43,6 @@ const Login = () => {
 
         if (response.ok) {
             const role = await response.text();  // Read the response as text
-
             console.log("Received role:", role.trim());  // Debugging output
 
             if (role.trim() === ROLE.ADMIN) {
@@ -47,18 +50,17 @@ const Login = () => {
             } else if (role.trim() === ROLE.USER) {
                 await handleUserLogin();
             } else {
-                alert("Unknown role received: " + role);
+                setAlert({ message: "Unknown role received: " + role, type: "fail" });
             }
         } else {
             const errorText = await response.text();
-            alert("Login failed: " + errorText);
+            setAlert({ message: "Login failed: " + errorText, type: "fail" });
         }
     } catch (error) {
         console.error("Login error:", error);
-        alert("Something went wrong. Please try again.");
+        setAlert({ message: "Something went wrong. Please try again.", type: "fail" });
     }
-};
-
+  };
 
   const handleAdminLogin = async () => {
     try {
@@ -75,17 +77,18 @@ const Login = () => {
       });
 
       if (response.ok) {
-        alert("Admin Login successful!");
+        setAlert({ message: "Admin Login successful!", type: "success" });
+        setIsAuthenticated(true);
         navigate("/customers");
       } else {
         const errorText = await response.text();
-        alert("Admin Login failed: " + errorText);
+        setAlert({ message: "Admin Login failed: " + errorText, type: "fail" });
       }
     } catch (error) {
       console.error("Admin Login error:", error);
-      alert("Something went wrong. Please try again.");
+      setAlert({ message: "Something went wrong. Please try again.", type: "fail" });
     }
-  }
+  };
 
   const handleUserLogin = async () => {
     try {
@@ -102,15 +105,16 @@ const Login = () => {
       });
 
       if (response.ok) {
-        alert("User Login successful!");
+        setAlert({ message: "User Login successful!", type: "success" });
+        setIsAuthenticated(true);
         navigate("/home");
       } else {
         const errorText = await response.text();
-        alert("User Login failed: " + errorText);
+        setAlert({ message: "User Login failed: " + errorText, type: "fail" });
       }
     } catch (error) {
       console.error("User Login error:", error);
-      alert("Something went wrong. Please try again.");
+      setAlert({ message: "Something went wrong. Please try again.", type: "fail" });
     }
   };
 
@@ -180,6 +184,10 @@ const Login = () => {
       <div style={styles.formContainer}>
         <h2>Log in to your account</h2>
         <p>Enter your credentials below</p>
+
+        {/* ✅ Integrated AlertDialog */}
+        {alert.message && <AlertDialog message={alert.message} type={alert.type} />}
+
         <form style={styles.form} onSubmit={preLogin}>
           <input
             type="email"

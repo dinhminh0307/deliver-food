@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 const Timetable = () => {
   const [scheduleDatas, setScheduleData] = useState([]);
   const [alert, setAlert] = useState(null);
+  const { isAuthenticated } = useAuth();
 
   const styles = {
     container: {
@@ -59,6 +61,11 @@ const Timetable = () => {
   const daysOfWeek = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setScheduleData([]);
+      return;
+    }
+
     const getUserSchedule = async () => {
       try {
         const response = await fetch("http://localhost:8080/schedule/get/current", {
@@ -83,7 +90,7 @@ const Timetable = () => {
     };
 
     getUserSchedule();
-  }, []);
+  }, [isAuthenticated]);
 
   const generateTimeSlots = () => {
     const slots = [];

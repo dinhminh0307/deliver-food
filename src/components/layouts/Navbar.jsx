@@ -226,13 +226,13 @@ const Navbar = () => {
         {/* Like Icon */}
         <div style={styles.icon}>
           <FaHeart />
-          <span style={styles.badge}>2</span>
+          <span style={styles.badge}></span>
         </div>
 
         {/* Cart Icon */}
         <Link to="/cart" style={styles.icon}>
           <FaShoppingCart />
-          <span style={styles.badge}>3</span>
+          <span style={styles.badge}></span>
         </Link>
 
         {/* User Icon with Dropdown */}

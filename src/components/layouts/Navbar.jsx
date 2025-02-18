@@ -8,7 +8,7 @@ const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [alert, setAlert] = useState({ message: "", type: "" });
   const dropdownRef = useRef(null);
-  const { logOut } = useAuth();
+  const { logOut, isAuthenticated } = useAuth();
   const navigate = useNavigate(); 
 
   const styles = {
@@ -18,12 +18,17 @@ const Navbar = () => {
       justifyContent: "space-between",
       alignItems: "center",
       padding: "16px 32px",
-      backgroundColor: "#fff",
+      backgroundColor: "#333",
       borderBottom: "1px solid #ddd",
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      zIndex: 1000,
     },
     logo: {
       fontSize: "24px",
       fontWeight: "bold",
+      color: "#fff",
     },
     navLinks: {
       display: "flex",
@@ -34,7 +39,7 @@ const Navbar = () => {
     },
     navLink: {
       textDecoration: "none",
-      color: "#555",
+      color: "#fff",
       fontWeight: 500,
       transition: "color 0.2s",
     },
@@ -67,7 +72,7 @@ const Navbar = () => {
     icon: {
       position: "relative",
       fontSize: "20px",
-      color: "#555",
+      color: "#fff",
       cursor: "pointer",
     },
     badge: {
@@ -104,6 +109,14 @@ const Navbar = () => {
     },
     dropdownItemHover: {
       backgroundColor: "#f5f5f5",
+    },
+    button: {
+      backgroundColor: '#f44',
+      color: '#fff',
+      border: 'none',
+      padding: '10px 20px',
+      cursor: 'pointer',
+      borderRadius: '4px',
     },
   };
 
@@ -213,13 +226,13 @@ const Navbar = () => {
         {/* Like Icon */}
         <div style={styles.icon}>
           <FaHeart />
-          <span style={styles.badge}>2</span>
+          <span style={styles.badge}></span>
         </div>
 
         {/* Cart Icon */}
         <Link to="/cart" style={styles.icon}>
           <FaShoppingCart />
-          <span style={styles.badge}>3</span>
+          <span style={styles.badge}></span>
         </Link>
 
         {/* User Icon with Dropdown */}

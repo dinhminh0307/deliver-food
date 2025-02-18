@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import AlertDialog from "../../components/dialogs/AlertDialog";
+import { AuthContext } from "../../context/AuthContext";
 
 const ProductItem = ({ id, image, name, description, price }) => {
+  const { isAuthenticated } = useContext(AuthContext);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({ message: "", type: "" });
@@ -125,14 +127,14 @@ const ProductItem = ({ id, image, name, description, price }) => {
   const handleAddToCart = async () => {
     setLoading(true);
     setAlert({ message: "", type: "" });
-  
+
     const productPayload = {
       productId: id,
       name: name,
       price: price,
       description: description,
     };
-  
+
     try {
       const response = await fetch("http://localhost:8080/cart/add", {
         method: "POST",
@@ -140,19 +142,22 @@ const ProductItem = ({ id, image, name, description, price }) => {
         credentials: "include",
         body: JSON.stringify(productPayload),
       });
-  
-      if (!response.ok) {
+
+      if (response.status === 401) {
+        setAlert({ message: "You are not authorized. Please log in.", type: "fail" });
+        // Optionally, redirect to login page
+        // window.location.href = "/login";
+      } else if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText || "Failed to add item to cart.");
+      } else {
+        setAlert({ message: "Product added to cart successfully!", type: "success" });
       }
-  
-      setAlert({ message: "Product added to cart successfully!", type: "success" });
     } catch (error) {
       setAlert({ message: "Failed to add product. Please try again.", type: "fail" });
     } finally {
       setLoading(false);
     }
-    
   };
   
   return (
@@ -184,9 +189,11 @@ const ProductItem = ({ id, image, name, description, price }) => {
             <h2 style={styles.name}>{name}</h2>
             <p style={styles.description}>{description}</p>
             <p style={styles.price}>${price.toFixed(2)}</p>
-            <button style={styles.button} onClick={validateItemCart} disabled={loading}>
-              {loading ? "Adding..." : "Add to Cart"}
-            </button>
+            {isAuthenticated && (
+              <button style={styles.button} onClick={validateItemCart} disabled={loading}>
+                {loading ? "Adding..." : "Add to Cart"}
+              </button>
+            )}
           </div>
         </div>
       )}

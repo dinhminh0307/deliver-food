@@ -4,12 +4,16 @@ const Footer = () => {
   const styles = {
     footer: {
       width: "100%",
-      backgroundColor: "#000",
+      backgroundColor: "#333",
       color: "#fff",
       padding: "20px 40px",
       display: "flex",
       justifyContent: "space-between",
       flexWrap: "wrap",
+      position: "fixed",
+      bottom: 0,
+      left: 0,
+      zIndex: 1000,
     },
     column: {
       flex: "1 1 200px",
@@ -65,6 +69,7 @@ const Footer = () => {
       borderTop: "1px solid #333",
       padding: "10px 0",
       fontSize: "12px",
+      width: "100%",
     },
   };
 

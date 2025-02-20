@@ -19,6 +19,7 @@ function App() {
           <div style={{ flexShrink: 0 }}>
             <Navbar />
           </div>
+          <br /><br />
 
           {/* Main Content (scrollable) */}
           <main

@@ -8,6 +8,7 @@ const AddFormModal = ({ onClose, formType }) => {
     description: "",
     productType: "",
     type: "games",  // Default value for dropdown
+    imageUrl: ""    // New field for Image URL
   });
 
   const handleChange = (e) => {
@@ -32,6 +33,7 @@ const AddFormModal = ({ onClose, formType }) => {
             name: formData.name,
             price: formData.price,
             description: formData.description,
+            imageUrl: formData.imageUrl, // Include the new field in the request body
           }),
         }
       );
@@ -109,6 +111,19 @@ const AddFormModal = ({ onClose, formType }) => {
                   name="productType"
                   placeholder="Enter product type (e.g., horror, action)"
                   value={formData.productType}
+                  onChange={handleChange}
+                  className="form-control"
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label fw-medium text-dark">Image URL</label>
+                <input
+                  type="text"
+                  name="imageUrl"
+                  placeholder="Enter image URL"
+                  value={formData.imageUrl}
                   onChange={handleChange}
                   className="form-control"
                   required
